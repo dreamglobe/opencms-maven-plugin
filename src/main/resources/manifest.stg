@@ -1,0 +1,196 @@
+group manifest_grp;
+
+manifest(encoding="UTF-8",xmlversion="1.0",export) ::= <<
+<?xml version="$xmlversion$" encoding="$encoding$"?>
+
+<export>
+	$info(export.info)$
+	$module(export.module)$
+	$accounts(export.accounts)$
+	$files(export.files)$
+</export>
+
+>>
+
+info(info)::=<<
+<info>
+	<creator>$info.creator$</creator>
+	<opencms_version>$info.opencmsversion$</opencms_version>
+	<createdate>$info.createdate$</createdate>
+	<infoproject>$info.project$</infoproject>
+	<export_version>$info.exportversion$</export_version>
+</info>
+>>
+
+module(module)::= <<
+<module>
+	<name>$module.name$</name>
+	<nicename><![CDATA[$module.nicename$]]></nicename>
+	<group>$module.group$</group>
+	<class>$module.moduleclass$</class>
+	<description><![CDATA[$module.description$]]></description>
+	<version>$module.version$</version>
+	<authorname><![CDATA[$module.authorname$]]></authorname>
+	<authoremail><![CDATA[$module.authoremail$]]></authoremail>
+	<datecreated>$module.datecreated$</datecreated>
+	<userinstalled/>
+	<dateinstalled/>
+$if(module.dependencies_str)$
+	$module.dependencies_str$
+$else$
+	<dependencies/>
+$endif$
+
+$if(module.exportpoints_str)$
+	$module.exportpoints_str$
+$else$
+	<exportpoints/>
+$endif$
+
+$if(module.resources_str)$
+	$module.resources_str$
+$else$
+	<resources/>
+$endif$
+
+$if(module.resourcetypes_str)$
+	$module.resourcetypes_str$
+$else$
+	<resourcetypes/>
+$endif$
+
+$if(module.explorertypes_str)$
+	$module.explorertypes_str$
+$else$
+	<explorertypes/>
+$endif$
+
+$if(module.parameters_str)$
+	$module.parameters_str$
+$else$
+	<parameters/>
+$endif$
+
+</module>
+>>
+
+accounts(accounts) ::= <<
+$if(accounts.accounts_str)$
+$accounts.accounts_str$
+$endif$
+>>
+
+files(files) ::= <<
+$if(files.empty)$
+<files/>
+$else$
+<files>
+	$files:file()$
+</files>
+$endif$
+>>
+
+dependencies(dependencies) ::= <<
+$if(dependencies)$
+<dependencies>
+	$dependency(dependencies)$
+</dependencies>
+$else$
+<dependencies/>
+$endif$
+>>
+
+dependency(dependency) ::= <<
+<dependency name="$dependency.name$" version="$dependency.version$"/>
+>>
+
+resources(resources) ::= <<
+$if(resources)$
+<resources>
+	$resource(resources)$
+</resources>
+$else$
+<resources/>
+$endif$
+>>
+
+parameters(parameters) ::= <<
+$if(parameters)$
+<parameters>
+	$parameter(parameters)$
+</parameters>
+$else$
+<parameters/>
+$endif$
+>>
+
+resource(resource) ::= <<
+<resource uri="$resource.uri$" />
+>>
+
+file(data) ::= <<
+<file>
+$if(data.source)$
+	<source>$data.source$</source>
+$endif$
+
+	<destination>$data.destination$</destination>
+	<type>$data.type$</type>
+$if(data.uuidstructure)$
+	<uuidstructure>$data.uuidstructure$</uuidstructure>
+$endif$
+
+$if(data.uuidresource)$
+	<uuidresource>$data.uuidresource$</uuidresource>
+$endif$
+
+	<datelastmodified>$data.datelastmodified$</datelastmodified>
+	<userlastmodified>$data.userlastmodified$</userlastmodified>
+	<datecreated>$data.datecreated$</datecreated>
+	<usercreated>$data.usercreated$</usercreated>
+	<flags>$data.flags$</flags>
+$if(data.emptyProperties)$
+	<properties/>
+$else$
+	<properties>
+		$data.properties:{entry|<property>
+	<name>$entry.key$</name>
+	<value><![CDATA[$entry.value$]]></value>
+</property>}; separator="\n"$
+		$data.sharedProperties:{entry|<property type="shared">
+	<name>$entry.key$</name>
+	<value><![CDATA[$entry.value$]]></value>
+</property>	}; separator="\n"$
+	</properties>
+$endif$
+
+$if(data.emptyRelations)$
+	<relations/>
+$else$
+	<relations>
+		$data.relations:{entry|<relation>
+	<id>$entry.id$</id>
+	<path>$entry.path$</path>
+	<type>CATEGORY</type>
+</relation>}; separator="\n"$
+	</relations>
+$endif$
+
+$if(data.emptyAcl)$
+	<accesscontrol/>
+$else$
+	<accesscontrol>
+		$data.acl:{entry|<accessentry>
+	<uuidprincipal>$entry.key$</uuidprincipal>
+	<flags>$entry.value.flags$</flags>
+	<permissionset>
+		<allowed>$entry.value.allowed$</allowed>
+		<denied>$entry.value.denied$</denied>
+	</permissionset>
+</accessentry> }; separator="\n"$
+	</accesscontrol>
+$endif$
+
+</file>
+
+>>

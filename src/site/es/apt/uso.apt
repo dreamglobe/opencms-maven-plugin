@@ -1,0 +1,237 @@
+ ------
+ Usage
+ ------
+ José Ángel García
+ ------
+ 2011-03-02
+ ------
+
+~~ NOTE: For help with the syntax of this file, see:
+~~ http://maven.apache.org/doxia/references/apt-format.html
+
+Uso
+
+ El plugin Módulo de OpenCms se puede usar para realizar las siguientes tareas: 
+ 
+ * construir un módulo opencms dentro del ciclo de vida de construcción en la fase <<<package>>> 
+   cuando el proyecto tiene un tipo de empaquetado <<<opencms-module>>> o mediante el 
+   objetivo <<<opencms:module>>>.
+
+ * generar un manifiesto personalizado del módulo que refleje la configuración y los recursos 
+   del proyecto. 
+
+ * instalar/desinstalar un módulo en el OpenCms local mediante <<<opencms:install-module>>> y 
+   <<<opencms:uninstall-module>>>.
+
+ []
+
+ <<Nota:>> Al usar los objetivos <<<opencms:*>>> se asume que se ha realizado la fase <<<compile>>>  
+ (para el caso de opencms:module), o que se dispone de los módulos con los que operar (para el de 
+ <<<opencms:install-module opencms:uninstall-module>>>).
+
+*Construcción de módulos OpenCms 
+
+ La forma general de usar el plugin de módulos OpenCms es indicar en el proyecto el tipo de empaquetado
+ <<<opencms-module>>>, de forma que se invoque automáticamente el objetivo <<<opencms:module>>> 
+ en la fase <<<package>>>.
+
+ Esta sería la descripción en el <<<pom.xml>>> de un proyecto de tipo módulo de OpenCms:
+
++----------+
+<project>
+  ...
+  <groupId>com.example.projects</groupId>
+  <artifactId>module-project</artifactId>
+  <packaging>opencms-module</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>Projecto de módulo de OpenCms</name>
+  <url>http://example.com</url>
+  ...
+</project>
++----------+
+
+**Estructura de proyecto opencms-module con manifest.xml
+
+ La estructura de directorios de un proyecto opencms-module debería ser similar a la del diagrama en el caso de que 
+ dispongamos del fichero manifiesto: 
+
++----------+
+ .
+ |-- pom.xml
+ `-- src
+     `-- main
+         |-- java
+         |   `-- com
+         |       `-- example
+         |           `-- projects
+         |               `-- SampleAction.java
+         |-- resources
+         |   |-- com
+         |   |   `-- example
+         |   |       `-- projects
+         |   |           |-- messages.properties
+         |   |           `-- workplace.properties
+         |   `-- code_resource.res
+         `-- module
+             |-- elements
+             |   `-- element-template.jsp
+             |-- resources
+             |   |-- css
+             |   |-- img
+             |   `-- js
+             |-- schemas
+             |-- templates
+             |   `-- frame.jsp
+             `-- manifest.xml
++----------+
+ 
+
+**Estructura de proyecto opencms-module con manifest.xml
+
+ Cuando queremos que el manifiesto se genere automaticamente debe incluirse un nuevo 
+ directorio en el proyecto <<<src/main/manifest>>> que incluya los descriptores que formarán
+ la parte inicial del manifiesto.
+
++----------+
+ .
+ |-- pom.xml
+ `-- src
+     `-- main
+         |-- java
+         |   `-- com
+         |       `-- example
+         |           `-- projects
+         |               `-- SampleAction.java
+         |-- resources
+         |   |-- com
+         |   |   `-- example
+         |   |       `-- projects
+         |   |           |-- messages.properties
+         |   |           `-- workplace.properties
+         |   `-- code_resource.res
+         |-- manifest
+         |   |-- dependencies.xml
+         |   |-- explorertypes.xml
+         |   |-- exportpoints.xml
+         |   |-- module.properties
+         |   |-- parameters.xml
+         |   |-- resources.xml
+         |   `-- resourcetypes.xml
+         `-- module
+             |-- elements
+             |   `-- element-template.jsp
+             |-- resources
+             |   |-- css
+             |   |-- img
+             |   `-- js
+             |-- schemas
+             |   
+             `-- templates
+                 `-- frame.jsp
++----------+
+
+ La invocación de 
+
++----------+
+mvn package
++----------+
+
+ o
+
++----------+
+mvn compile opencms:module
++----------+
+
+ generará el fichero del módulo <<<target/module-project-1.0-SNAPSHOT.zip>>>.
+ 
+ 
+*Personalización del manifest.xml
+
+ 
+ The default directory for the exploded WAR is <<<target/\<finalName\>>>>. The <<<finalName>>> is usually in the form
+ of <<<\<artifactId\>-\<version\>>>>.
+ This default directory can be overridden by specifying the <<<webappDirectory>>> parameter.
+
++-------+
+<project>
+  ...
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <webappDirectory>/sample/servlet/container/deploy/directory</webappDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  ...
+</project>
++-------+
+
+*Conjunto de Recursos de Módulo
+
+ 
+
+*Instalación/desinstalación del módulo mediante objetivo <<<opencms:install-module>>> y <<<opencms:uninstall-module>>>
+
+ Para realizar las tareas de instalación de un módulo dentro de la aplicación OpenCms 
+ configurada por el proyecto, se usa la invocación 
+ 
++----------+
+mvn package opencms:install-module
++----------+
+
+ o
+ 
++----------+
+mvn compile opencms:module opencms:install-module
++----------+
+ 
+** Uso de instalación/desinstalación dentro de un proyecto maven 
+ 
+ En los proyectos que dispongan de manifiesto, la configuración debería indicar el nombre del módulo 
+ mediante la propiedad <<<$\{manifest.module.name\}>>> para las tareas de instalación/desinstalación.
+ 
+ Los proyecto que contienen descriptores para generar el manifiesto, la propiedad con el nombre viene dada 
+ por defecto en <<<src/main/manifest/module.properties>>>.
+ 
+** Uso de instalación/desinstalación sin un proyecto maven
+ 
+ Es posible usar el objetivo de forma independiente a un proyecto, si se dispone del módulo
+ previamente y se establece la configuración necesaria establecida correctamente.
+ 
+ Las propiedades de configuración que afectan la instalación vienen dados por los siguientes parámetros:
+
+ * Nombre del módulo (para la instalación/desinstalación)
+ 	
+ 	* <<<manifest.module.name>>>
+ 
+ * Ruta del fichero módulo OpenCms (para la instalación)
+ 	
+ 	* <<<module.file>>>
+ 
+ * Directorio base de OpenCms, nombre de la aplicación dentro del contenedor y contexto del servlet de opencms
+ 
+ 	* <<<opencms.home>>> con un valor por defecto de <<<$\{catalina.base\}/webapps/ROOT>>>
+ 	
+ 	* <<<opencms.webapp.name>>> con un valor por defecto vacio
+ 	
+ 	* <<<opencms.servlet.mapping>>> con un valor por defecto vacio <<<opencms/*>>>
+ 
+ * Autenticación para OpenCms
+ 
+ 	* <<<opencms.server.id>>> ó
+ 	
+ 	* <<<opencms.user.name>>>
+ 	
+ 	* <<<opencms.user.pass>>>
+ 
+ * Directorio base del servidor de Tomcat (para cargar las bibliotecas j2ee) 
+ 	
+ 	* <<<catalina.base>>> por defecto el valor de sistema <<<$\{catalina.base\}>>>
+ 
+ []
+

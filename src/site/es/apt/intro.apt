@@ -1,0 +1,63 @@
+ ------
+ Introducción
+ ------
+ José Ángel García Sánchez
+ ------
+ 2011-03-01
+ ------
+
+~~ NOTE: For help with the syntax of this file, see:
+~~ http://maven.apache.org/doxia/references/apt-format.html
+
+OpenCms Module Maven Plugin 
+
+ El plugin de módulos de OpenCms se responsabiliza de recoger todos los recursos, clases y artefactos 
+ de dependencias de un proyecto opencms-module y empaquetarlo en un archivo módulo. Puede generar
+ el manifiesto correspondiente mediante ficheros descriptores, o agregar un manifiesto proporcionado.
+ 
+ <<Nota>>: El plugin es una adaptación de los plugins <<<maven-war-plugin>>> y <<<maven-jar-plugin>>>. 
+ Este hecho condiciona algunos de los mensajes mostrados durante la construcción de módulos, que pueden parecer 
+ incorrectos al referirse al módulo como un fichero <<.jar>>.   
+
+* Resumen de los Objetivos
+
+ * {{{./module-mojo.html}opencms:module}} es el objetivo por defecto vinculado a la fase <<package>> para 
+   los proyectos de tipo <<opencms-module>>. Construye un fichero zip según las especificaciones de módulos OpenCms.
+
+ * {{{./install-module-mojo.html}opencms:install-module}} copia el fichero zip generado por 
+   opencms:module a la aplicación OpenCms configurada y ejecuta la instalación mediante el CmsShell.  
+
+ * {{{./uninstall-module-mojo.html}opencms:uninstall-module}} realiza la desinstalación del módulo 
+   referido por el proyecto de la aplicación OpenCms configurada mediante el CmsShell.  
+
+ * {{{./reload-app-mojo.html}opencms:reload-app}} es una utilidad que permite reiniciar la aplicación OpenCms
+   si está instalada en un Apache Tomcat a través del gestor de aplicaciones, siempre que esté bien configurado y tenga
+   suficientes permisos.
+
+* Uso
+
+ Las instrucciones generales de como usar el Plugin de Módulo OpenCms se puede encontrar en 
+ {{{./uso.html}la página de uso}}. Se pueden encontrar algunos casos de uso específicos en los ejemplos dados abajo. 
+ Otras cuestiones sobre el uso del plugin pueden estar recogidas en la {{{./faq.html}FAQ}}. 
+  
+  Para utilizar toda la riqueza semantica del manifiesto se usan ficheros de propiedades de los recursos y ficheros 
+  de control de acceso. La sección {{{./recursos.html}Recursos del módulo}} explica la estructura y formato de estos elementos.   
+  
+* Ejemplos
+
+  Para dar una mejor explicación de algunos usos del plugin de Modulos OpenCms, se incluyen los siguientes ejemplos:
+
+  * {{{examples/adding-filtering-webresources.html}Agregar recursos, filtrado y codificación nativa}}
+
+  * {{{examples/war-manifest-guide.html}Configuración de la generación del manifiesto}}
+
+  * {{{examples/rapid-testing-jetty6-plugin.html}Rapid Testing the Jetty Plugin}}
+
+  * {{{examples/skinny-wars.html} Creación de módulos de contenidos}}
+
+  * {{{examples/file-name-mapping.html}Módulo de sistema y propiedades destino}}
+
+* Enlaces Relacionados
+
+  * {{{http://maven.apache.org/guides/mini/guide-archive-configuration.html}Exclusion of Maven Descriptors}}
+

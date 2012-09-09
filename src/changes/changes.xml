@@ -1,0 +1,67 @@
+<document xmlns="http://maven.apache.org/changes/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd">
+	<properties>
+		<title>OpenCms Module generator plugin Project</title>
+		<author email="joseangel.garcia@vdos.com">José Ángel García</author>
+	</properties>
+	<body>
+		<!-- <release version="1.1" date="2005-03-01" description="Subsequent release"> -->
+		<!-- <action dev="jruiz" type="add"> -->
+		<!-- Added additional documentation on how to configure the plugin. -->
+		<!-- </action> -->
+		<!-- <action dev="aramirez" type="fix" issue="MPJIRA-11"> -->
+		<!-- Enable retrieving component-specific issues. -->
+		<!-- </action> -->
+		<!-- <action dev="jruiz" type="remove" due-to="Allan Ramirez" due-to-email="aramirez@exist.com"> -->
+		<!-- The element type " link " must be terminated by the matching end-tag. -->
+		<!-- Deleted the erroneous code. -->
+		<!-- </action> -->
+		<!--<action dev="joseangel" type="update"> -->
+		<!-- Agrega documentación al proyectos. -->
+		<!-- Nueva versión del padre 1. -->
+		<!-- </action> -->
+		<!-- </release> -->
+		<release version="0.0.7" date="2012-09-05" description="Nueva Autoria">
+			<action dev="joseangel" type="update">
+				Empaquetado pasa a com.kw
+				Id sigue nueva regla ___-maven-plugin
+      		</action>
+			<action dev="joseangel" type="update">
+				Nueva version de plugins y elimina dep con vdos.utils
+      		</action>
+      	</release>
+		<release version="0.0.6" date="2010-04-20" description="Actualización del proyecto">
+			<action dev="joseangel" type="update">
+				Implementa semantica de propiedad "attachClasses", que controla
+				la presencia de binarios (directorios classes y/o lib) dentro del
+				módulo generado. Por defecto es true.
+      		</action>
+			<action dev="joseangel" type="update">
+				Elimina la etiqueta por defecto classes para el empaquetado jar
+      		</action>
+			<action dev="joseangel" type="update">
+				Elimina la necesidad de pom de proyecto para mojos install-module, uninstall-module, y reload-app
+      		</action>
+			<action dev="joseangel" type="fix">
+				Elimina mensaje warning para recurso duplicado en el caso de directorio base del módulo
+      		</action>
+			<action dev="joseangel" type="update">
+				Nueva versión del padre
+				vdos-desc:1.4
+      		</action>
+			<action dev="joseangel" type="update">
+				Documentación de proyecto.
+			</action>
+			<action dev="joseangel" type="add">
+				Enables caché for the module structure
+      		</action>
+		</release>
+		<release version="0.0.5" date="2010-02-25" description="Reorganización">
+			<action dev="joseangel" type="remove">
+				Extrae la funcionalidad de webdavget y svnsync, que queda recogida en
+				sendos plugins:	maven-webdavget-plugin y maven-svnsync-plugin
+			</action>
+		</release>
+	</body>
+</document>

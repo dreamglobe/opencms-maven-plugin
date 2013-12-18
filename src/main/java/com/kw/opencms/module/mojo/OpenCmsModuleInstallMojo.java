@@ -18,6 +18,7 @@ package com.kw.opencms.module.mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -48,26 +49,26 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 
 	/**
 	 * Server identification for settings credentials 
-	 * @parameter expression="${opencms.server.id}"
+	 * @parameter property="opencms.server.id"
 	 */
 	private String openCmsServerAuthId;
 
 	/**
 	 * User that installs the module on the OpenCms instance.
-	 * @parameter expression="${opencms.user.name}"
+	 * @parameter property="opencms.user.name"
 	 */
 	protected String openCmsUserName;
 
 	/**
 	 * Credentials for the OpenCms user.
-	 * @parameter expression="${opencms.user.pass}"
+	 * @parameter property="opencms.user.pass"
 	 */
 	protected String openCmsUserPass;
 
 	/**
 	 * BaseDir for OpenCms installation.
 	 * Defaults to <code>${catalina.home}/webapps/ROOT"</code>.
-	 * @parameter expression="${opencms.home}" default-value="${catalina.home}/webapps/ROOT"
+	 * @parameter property="opencms.home" default-value="${catalina.home}/webapps/ROOT"
 	 * @required
 	 */
 	protected String openCmsBaseDir;
@@ -75,14 +76,14 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 	/**
 	 * Mapping for the OpenCms dispatcher servlet.
 	 * Defaults to "opencms/*".
-	 * @parameter expression="${opencms.servlet.mapping}" default-value="opencms/*"
+	 * @parameter property="opencms.servlet.mapping" default-value="opencms/*"
 	 */
 	protected String openCmsServetMapping;
 
 
 	/**
 	 * BaseDir for Tomcat installation.
-	 * @parameter expression="${catalina.base}" default-value="${catalina.base}"
+	 * @parameter property="catalina.base" default-value="${catalina.base}"
 	 * @required
 	 */
 	protected File appServerBaseDir;
@@ -90,7 +91,7 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 	/**
      * Location of the module file to install.
      * Defaults to <code>target/&lt;artifactId&gt;-&lt;version&gt;.zip</code>.
-     * @parameter expression="${module.file}" default-value="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+     * @parameter property="module.file" default-value="${project.build.directory}/${project.artifactId}-${project.version}.zip"
      * @required
      */
     private File moduleFile;
@@ -98,7 +99,7 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
     /**
 	 * Selects to update the module or a fresh install, for installing previous module version
 	 * Defaults to <code>"true"</code>
-	 * @parameter expression="${fresh.install}" default-value="true"
+	 * @parameter property="fresh.install" default-value="true"
 	 */
 	private boolean freshInstall;
 

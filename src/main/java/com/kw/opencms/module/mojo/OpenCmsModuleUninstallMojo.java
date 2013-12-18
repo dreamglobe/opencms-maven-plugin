@@ -29,26 +29,26 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	public static final String MODULES_RELATIVE_PATH = "packages" + File.separator + "modules" + File.separator;
 
 	/**
-	 * @parameter expression="${opencms.server.id}"
+	 * @parameter property="opencms.server.id"
 	 */
 	private String openCmsServerAuthId;
 
 	/**
 	 * User that installs the module on the OpenCms instance.
-	 * @parameter expression="${opencms.user.name}"
+	 * @parameter property="opencms.user.name"
 	 */
 	protected String openCmsUserName;
 
 	/**
 	 * Credentials for the OpenCms user.
-	 * @parameter expression="${opencms.user.pass}"
+	 * @parameter property="opencms.user.pass"
 	 */
 	protected String openCmsUserPass;
 
 	/**
 	 * Base dir for OpenCms installation.
 	 * Defaults to <code>${catalina.home}/webapps/ROOT"</code>.
-	 * @parameter expression="${opencms.home}" default-value="${catalina.home}/webapps/ROOT"
+	 * @parameter property="opencms.home" default-value="${catalina.home}/webapps/ROOT"
 	 * @required
 	 */
 	protected String openCmsBaseDir;
@@ -56,26 +56,26 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	/**
 	 * Mapping for the OpenCms dispatcher servlet.
 	 * Defaults to "opencms/*".
-	 * @parameter expression="${opencms.servlet.mapping}"
+	 * @parameter property="opencms.servlet.mapping"
 	 */
 	protected String openCmsServetMapping;
 
 	/**
 	 * User that installs the module on the OpenCms instance.
-	 * @parameter expression="${server.user.name}"
+	 * @parameter property="server.user.name"
 	 */
 	protected String appServerUserName;
 
 	/**
 	 * Credentials for the OpenCms user.
-	 * @parameter expression="${server.user.pass}"
+	 * @parameter property="server.user.pass"
 	 */
 	protected String appServerUserPass;
 
 	/**
 	 * Base dir for servlet container installation (tomcat).
 	 * Defaults to <code>${catalina.base}"</code>.
-	 * @parameter expression="${catalina.base}" default-value="${catalina.base}"
+	 * @parameter property="catalina.base}" default-value="${catalina.base"
 	 * @required
 	 */
 	protected File appServerBaseDir;
@@ -83,7 +83,7 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	/**
      * Location of the module file to install.
      * Defaults to <code>target/&lt;artifactId&gt;-&lt;version&gt;.zip</code>.
-     * @parameter expression="${module.file}" default-value="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+     * @parameter property="module.file" default-value="${project.build.directory}/${project.artifactId}-${project.version}.zip"
      * @required
      */
     private File moduleFile;

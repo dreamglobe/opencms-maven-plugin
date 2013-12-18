@@ -33,14 +33,14 @@ public class ModuleMojo
 
 	/**
      * The directory for the generated module.
-     * @parameter expression="${project.build.directory}"
+     * @parameter property="project.build.directory"
      * @required
      */
     private String outputDirectory;
 
     /**
      * The name of the generated module.
-     * @parameter expression="${project.build.finalName}"
+     * @parameter property="project.build.finalName"
      * @required
      */
     private String moduleName;
@@ -69,7 +69,7 @@ public class ModuleMojo
     /**
      * Whether this is the main artifact being built. Set to <code>false</code> if you don't want to install or
      * deploy it to the local repository instead of the default one in an execution.
-     * @parameter expression="${primaryArtifact}" default-value="true"
+     * @parameter property="primaryArtifact" default-value="true"
      */
     private boolean primaryArtifact = true;
 
@@ -77,7 +77,7 @@ public class ModuleMojo
      * Whether or not to fail the build is the <code>manifest.xml</code> file is missing. 
      * Set to <code>false</code> if you want you module built without a <code>manifest.xml</code> file, 
      * besides the module won't be installable on OpenCms system.
-     * @parameter expression="${failOnMissingManifestXml}" default-value="true"
+     * @parameter property="failOnMissingManifestXml" default-value="true"
      */
     private boolean failOnMissingManifestXml = true;
 

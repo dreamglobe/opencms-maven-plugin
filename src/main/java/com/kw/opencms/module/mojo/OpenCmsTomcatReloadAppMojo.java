@@ -26,25 +26,25 @@ import org.apache.maven.settings.Server;
 public class OpenCmsTomcatReloadAppMojo extends AbstractModuleMojo {
 
 	/**
-	 * @parameter expression="${tomcat.manager.url}" default-value="http://localhost:8080/manager/"
+	 * @parameter property="tomcat.manager.url" default-value="http://localhost:8080/manager/"
 	 */
 	private URL urlManager;
 
 	/**
 	 * Take the credentials from a server definition in settings.xml.
-	 * @parameter expression="${app.server.id}"
+	 * @parameter property="app.server.id"
 	 */
 	private String appServerAuthId;
 
 	/**
 	 * User that installs the module on the OpenCms instance.
-	 * @parameter expression="${server.user.name}"
+	 * @parameter property="server.user.name"
 	 */
 	protected String appServerUserName;
 
 	/**
 	 * Credentials for the OpenCms user.
-	 * @parameter expression="${server.user.pass}"
+	 * @parameter property="server.user.pass"
 	 */
 	protected String appServerUserPass;
 

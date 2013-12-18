@@ -46,11 +46,12 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     protected static final String MANIFEST_NAME = "manifest.xml";
 
 	public static final String PACKAGING_OPENCMS_MODULE = "opencms-module";
+	public static final String POM_PACKAGING = "pom";
 
     /**
      * The maven project.
      *
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @required
      * @readonly
      */
@@ -59,7 +60,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * The directory containing generated classes.
      *
-     * @parameter expression="${project.build.outputDirectory}"
+     * @parameter property="project.build.outputDirectory"
      * @required
      * @readonly
      */
@@ -76,7 +77,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
      * parameter will make the generated classes to be archived into a jar file
      * and the classes directory will then be excluded from the module.
      *
-     * @parameter expression="${archiveClasses}" default-value="false"
+     * @parameter property="archiveClasses" default-value="false"
      */
     private boolean archiveClasses;
 
@@ -91,7 +92,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * The directory where the module is built.
      *
-     * @parameter expression="${project.build.directory}/${project.build.finalName}"
+     * @parameter property="moduleDirectory" default-value="${project.build.directory}/${project.build.finalName}"
      * @required
      */
     private File moduleDirectory;
@@ -99,7 +100,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * Single directory for extra files to include in the module.
      *
-     * @parameter expression="${basedir}/src/main/module"
+     * @parameter property="moduleSourceDirectory" default-value="${basedir}/src/main/module"
      * @required
      */
     private File moduleSourceDirectory;
@@ -129,39 +130,39 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * The path to the web.xml file to use.
      *
-     * @parameter expression="${maven.module.manifestxml}"
+     * @parameter property="maven.module.manifestxml"
      */
     private File manifestXml;
 
     /**
      * Whether to generate the manifest if it doent exist
      *
-     * @parameter expression="${generate.manifest.xml}" default-value="false"
+     * @parameter property="generate.manifest.xml" default-value="false"
      */
     private boolean generateManifestXml = false;
 
     /**
      * Charset to encode the generated module manifest;
      *
-     * @parameter expression="${manifest.encoding}"
+     * @parameter property="manifest.encoding"
      */
     private String manifestEncoding;
 
     /**
      *
-     * @parameter expression="${module.descriptors.dir}" default-value="${basedir}/src/main/manifest"
+     * @parameter property="module.descriptors.dir" default-value="${basedir}/src/main/manifest"
      */
     private File descriptorsDir;
 
     /**
      *
-     * @parameter expression="${module.descriptors.encoding}" default-value="default"
+     * @parameter property="module.descriptors.encoding" default-value="default"
      */
     private String descriptorsEncoding;
 
     /**
      *
-     * @parameter expression="${module.descriptors.n2aapply}" default-value="false"
+     * @parameter property="module.descriptors.n2aapply" default-value="false"
      */
     private boolean descriptorsN2AApply;
 
@@ -173,7 +174,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * Directory to copy conversed to native resources into if needed
      *
-     * @parameter expression="${project.build.directory}/module/work"
+     * @parameter property="workDirectory" default-value="${project.build.directory}/module/work"
      * @required
      */
     private File workDirectory;
@@ -190,7 +191,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * The file containing the module structure cache.
      *
-     * @parameter expression="${project.build.directory}/module/work/webapp-cache.xml"
+     * @parameter property="cacheFile" default-value="${project.build.directory}/module/work/webapp-cache.xml"
      * @required
      */
     private File cacheFile;
@@ -199,7 +200,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
      * Whether the cache should be used to save the status of the module
      * accross multiple runs.
      *
-     * @parameter expression="${useCache}" default-value="true"
+     * @parameter property="useCache" default-value="true"
      * @since 2.1-alpha-1
      */
     private boolean useCache = true;
@@ -269,7 +270,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     private List nonFilteredFileExtensions;
 
     /**
-     * @parameter expression="${session}"
+     * @parameter property="session"
      * @readonly
      * @required
      */
@@ -278,21 +279,21 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
     /**
      * To filtering deployment descriptors <b>disabled by default</b>
      *
-     * @parameter expression="${maven.module.filteringManifestDescriptors}" default-value="false"
+     * @parameter property="maven.module.filteringManifestDescriptors" default-value="false"
      */
     private boolean filteringDeploymentDescriptors = false;
 
     /**
      * To escape interpolated value with windows path
      * c:\foo\bar will be replaced with c:\\foo\\bar
-     * @parameter expression="${maven.module.escapedBackslashesInFilePath}" default-value="false"
+     * @parameter property="maven.module.escapedBackslashesInFilePath" default-value="false"
      */
     private boolean escapedBackslashesInFilePath = false;
 
     /**
      * Expression preceded with the String won't be interpolated
      * \${foo} will be replaced with ${foo}
-     * @parameter expression="${maven.module.escapeString}"
+     * @parameter property="maven.module.escapeString"
      */
     protected String escapeString;
 
@@ -311,7 +312,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
 	private Settings settings;
 
 	/**
-	 * @parameter expression="${dryrun}" default-value="false"
+	 * @parameter property="dryrun" default-value="false"
 	 */
 	private boolean dryRun = false;
 
@@ -320,7 +321,7 @@ public abstract class AbstractModuleMojo extends AbstractMojo {
 
 	/**
 	 * Name of the webapp aplication name for OpenCms.
-	 * @parameter expression="${opencms.webapp.name}" defaults=""
+	 * @parameter property="opencms.webapp.name" defaults=""
 	 */
 	protected String openCmsWebappName;
 

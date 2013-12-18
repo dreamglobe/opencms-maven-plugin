@@ -34,7 +34,7 @@ import com.kw.opencms.module.mojo.util.OpenCmsScriptUtils;
  * is done via generated script by CmsShell. 
  *
  * @goal install-module
- * @requiresProject false
+ * @requiresProject true
  */
 public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 {
@@ -108,6 +108,13 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 	 */
     public void execute() throws MojoExecutionException
     {
+		// check if module file exist
+        if(!PACKAGING_OPENCMS_MODULE.equals( getProject().getPackaging() ))
+        {
+        	this.getLog().info("El proyecto no es un módulo de OpenCms");
+        	return;
+        }
+        
     	// Get the module name for previous deletion
     	String moduleName = getModuleName();
 
@@ -145,6 +152,7 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 		}
 
        // Execute the script
+		OpenCmsScriptUtils.log = getLog();
 		OpenCmsScriptUtils.executeOpenCmsScript( openCmsWebInfDir, appServerBaseDir,
 				openCmsServetMapping, openCmsWebappName, "opencms/> ", installScript);
     }
@@ -195,18 +203,10 @@ public class OpenCmsModuleInstallMojo extends AbstractModuleMojo
 	 */
 	protected void checkConditions( ) throws MojoExecutionException
 	{
-		// check if module file exist
-        if( PACKAGING_OPENCMS_MODULE.equals( getProject().getPackaging() ))
+        if( !moduleFile.exists() )
         {
-        	if( !moduleFile.exists() )
-	        {
-	        	throw new MojoExecutionException(
-	        		"El fichero de módulo " + moduleFile + "no existe!" );
-	        }
-        }
-        else
-        {
-        	this.getLog().warn("El proyecto no es un módulo de OpenCms");
+        	throw new MojoExecutionException(
+        			"El fichero de módulo " + moduleFile + "no existe!" );
         }
 
         // Compose WEB-INF file for opencms

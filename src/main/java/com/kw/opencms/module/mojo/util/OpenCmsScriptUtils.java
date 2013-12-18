@@ -1,17 +1,17 @@
 package com.kw.opencms.module.mojo.util;
 
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.BuildException;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.classworlds.ClassWorld;
@@ -41,10 +41,12 @@ public class OpenCmsScriptUtils
 //    Constructor cmsShellContructor = cmsShellClazz.getConstructor(constructor_parameters);
 
 	/**  */
-	private static final Class[] start_parameters = new Class[]{FileInputStream.class};
+	private static final Class<?>[] start_parameters = new Class[]{FileInputStream.class};
 
 	/**  */
 	private static final ClassWorld world = new ClassWorld();
+
+	public static Log log;
 
 
 	/**
@@ -64,23 +66,15 @@ public class OpenCmsScriptUtils
 	{
 
 		// recoge la definición de la clase shell de OpenCms
-		Class cmsShellClazz = getOpenCmsShellClass(openCmsWebDir, appServerBaseDir);
+		Class<?> cmsShellClazz = getOpenCmsShellClass(openCmsWebDir, appServerBaseDir);
 
 		try {
-			// recoge el constructor de la clase
-			Constructor cmsShellContructor = cmsShellClazz.getConstructors()[0];
-
-			// invoca la construcción con los parámetros pasados
+			Constructor<?> cmsShellContructor = cmsShellClazz.getConstructors()[0];
 			Object shell = cmsShellContructor.newInstance(openCmsWebDir.toString(),
 					openCmsServeltMapping,
 					openCmsWebappName,
 					prompt, null);
-
-			// recoge la definición del método de ejecución de script
-			Method startShell = cmsShellClazz.getDeclaredMethod(
-					METHOD_START, start_parameters);
-
-			// ejecuta el script en la shell
+			Method startShell = cmsShellClazz.getDeclaredMethod(METHOD_START, start_parameters);
 			startShell.invoke( shell, new FileInputStream( installScript ));
 		}
 		catch (Exception e)
@@ -89,9 +83,6 @@ public class OpenCmsScriptUtils
 			throw new MojoExecutionException(
 					"Error durante la invocación del script OpenCms", e );
 		}
-
-//		Method stopShell = cmsShellClazz.getDeclaredMethod("exit");
-//		stopShell.invoke(shell);
 	}
 
 	/**
@@ -230,7 +221,11 @@ public class OpenCmsScriptUtils
 
 	private static void deleteModuleCommand( String module, StringBuilder sb )
 	{
-		sb.append( "deleteModule ").append( module).append("\n");
+		sb.append( "deleteModule \"").append( correctModuleName(module)).append("\"\n");
+	}
+
+	private static Object correctModuleName(String module) {
+		return module.replace('-', '_');
 	}
 
 	private static void importModuleCommand( String module, StringBuilder sb )
@@ -287,75 +282,112 @@ public class OpenCmsScriptUtils
 	 * @return la definición de la clase buscada
 	 * @throws MojoExecutionException
 	 */
-	private static Class getOpenCmsShellClass(File openCmsWebDir,
+	private static Class<?> getOpenCmsShellClass(File openCmsWebDir,
 			File appServerBaseDir) throws MojoExecutionException
 	{
 		// create the classes realms for OpenCms
-        ClassRealm realm;
-        ClassRealm ocRealm;
+		getOrCreateClassRealm(REALM_PLUGIN_NAME);
+		ClassRealm ocRealm = getOrCreateClassRealm(REALM_CHILD_OC_NAME, REALM_PLUGIN_NAME);
 		try
 		{
-			// use the existing ContextClassLoader in a realm of the class loading space
-			realm = world.newRealm( REALM_PLUGIN_NAME,
-					Thread.currentThread().getContextClassLoader());
-			ocRealm = realm.createChildRealm( REALM_CHILD_OC_NAME);
-
-			//add all the jars we just downloaded to the new child realm
-			File appServerLibDir = new File( appServerBaseDir, DIR_LIB);
-			if(!appServerLibDir.exists())
-			{
-				throw new BuildException("Server library dir does not exist! Check appServerBaseDir property: " + appServerBaseDir);
-			}
-	        for (File jar : appServerLibDir.listFiles())
-	        {
-	        	try
-	        	{
-					ocRealm.addConstituent(jar.toURI().toURL());
-				}
-	        	catch (MalformedURLException e)
-	        	{ // nunca ocurre
-				}
-	        }
-			File opencmsLibDir = new File( openCmsWebDir, DIR_LIB);
-			if(!opencmsLibDir.exists())
-			{
-				throw new BuildException("OpenCms library dir does not exist! Check openCmsBaseDir property " + openCmsWebDir);
-			}
-	        for (File jar : opencmsLibDir.listFiles())
-	        {
-	        	try
-	        	{
-	        		ocRealm.addConstituent(jar.toURI().toURL());
-				}
-	        	catch (MalformedURLException e)
-	        	{ // nunca ocurre
-				}
-	        }
-	        // make the child realm the ContextClassLoader
-	        Thread.currentThread().setContextClassLoader( ocRealm.getClassLoader());
-		}
-		catch (DuplicateRealmException e)
-		{
-			try
-			{
-				realm = world.getRealm( OpenCmsScriptUtils.REALM_PLUGIN_NAME );
-				ocRealm = world.getRealm( OpenCmsScriptUtils.REALM_CHILD_OC_NAME );
-			}
-			catch (NoSuchRealmException e1)
-			{
-				throw new MojoExecutionException(
-					"Error inicializando los Classloaders ", e);
-			}
-		}
-
-		try{
+			// make the child realm the ContextClassLoader
+			Thread.currentThread().setContextClassLoader( ocRealm.getClassLoader());
 			// create shell class definition from the realm
 			return ocRealm.loadClass( "org.opencms.main.CmsShell" );
 		}
 		catch ( ClassNotFoundException e )
 		{
-			throw new MojoExecutionException(
-				"No se encuentra la clase \"org.opencms.main.CmsShell\"", e);
+			File appServerLibDir = new File( appServerBaseDir, DIR_LIB);
+			if(!appServerLibDir.exists())
+				throw new BuildException("Server library dir does not exist! Check appServerBaseDir property: " + appServerBaseDir);
+
+			File opencmsLibDir = new File( openCmsWebDir, DIR_LIB);
+			if(!opencmsLibDir.exists())
+				throw new BuildException("OpenCms library dir does not exist! Check openCmsBaseDir property " + openCmsWebDir);
+			
+			//add all the jars we just downloaded to the new child realm
+			log.info("Cargando bibliotecas de servidor desde "+ appServerBaseDir);
+			loadJarInClassRealm(ocRealm, appServerLibDir);
+
+			log.info("Cargando bibliotecas de servidor y OpenCms desde "+ appServerLibDir);
+			loadJarInClassRealm(ocRealm, opencmsLibDir);
+			
+			try 
+			{
+				return ocRealm.loadClass( "org.opencms.main.CmsShell" );
+			}
+			catch ( ClassNotFoundException e1)
+			{
+				throw new MojoExecutionException(
+						"No se encuentra la clase \"org.opencms.main.CmsShell\"", e1);
+			}
 		}
+		
+	}
+
+	private static void loadJarInClassRealm(ClassRealm ocRealm,
+			File appServerLibDir) 
+	{
+		for (File jar : appServerLibDir.listFiles())
+		{
+			try
+			{
+				ocRealm.addConstituent(jar.toURI().toURL());
+			}
+			catch (MalformedURLException e)
+			{ // nunca ocurre
+			}
+		}
+	}
+
+	private static ClassRealm getOrCreateClassRealm(String classLoaderName) throws MojoExecutionException 
+	{
+		return getOrCreateClassRealm(classLoaderName, null);
+	}
+	
+	private static ClassRealm getOrCreateClassRealm(String classRealmName, String parentClassRealmName) throws MojoExecutionException 
+	{
+		try
+		{
+			// lookup
+			if(existsRealm(classRealmName)) 
+			{
+				return world.getRealm(classRealmName);
+			}
+			// creation
+			if(existsRealm(parentClassRealmName)) 
+			{
+				return world.getRealm(parentClassRealmName).createChildRealm(classRealmName);
+			} else 
+			{
+				return world.newRealm(classRealmName,Thread.currentThread().getContextClassLoader());
+			}
+		}
+		catch (NoSuchRealmException e)
+		{
+			throw new MojoExecutionException("Error inicializando los Classloaders ", e);
+		}
+		catch (DuplicateRealmException e1)
+		{
+			throw new MojoExecutionException("Error inicializando los Classloaders ", e1);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static ClassRealm findRealm(String realmName) 
+	{
+		for(ClassRealm realm : ((Iterable<ClassRealm>)(world.getRealms()))) 
+		{
+			if(realm.getId().equals(realmName)) 
+			{
+				return realm;
+			}
+		}
+		return null;
+	}
+	
+	private static boolean existsRealm(String realmName) 
+	{
+		return realmName!=null && findRealm(realmName)!=null;
 	}
 }

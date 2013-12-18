@@ -1,5 +1,21 @@
 package com.kw.opencms.module.mojo;
 
+/*
+ * Copyright 2001-2005 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import java.io.File;
 import java.io.IOException;
 
@@ -13,13 +29,14 @@ import com.kw.opencms.module.mojo.util.ManifestUtils;
 import com.kw.opencms.module.mojo.util.OpenCmsScriptUtils;
 
 /**
- * Generates and execute a script for deleting the module indicate by property <code>manifest.module.name</code>.
- * If no property as this exist searches for the manifest properties descriptor in the working dir.
+ * Goal which copies the module file to the OpenCms application configured in the project and then installs it.
+ * The module file is copied to <code>${opencms.home}/WEB-INF/packages/modules</code> directory. The installation
+ * is done via generated script by CmsShell. 
  *
- * @goal uninstall-module
- * @requiresProject true
+ * @goal install-module-file
+ * @requiresProject false
  */
-public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
+public class OpenCmsModuleFileInstallMojo extends AbstractModuleMojo
 {
 
 	public static final String MANIFEST_MODULE_VERSION_PROPERTY 	= "manifest.module.version";
@@ -28,7 +45,9 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	public static final String ZERO_STRING = "";
 	public static final String MODULES_RELATIVE_PATH = "packages" + File.separator + "modules" + File.separator;
 
+
 	/**
+	 * Server identification for settings credentials 
 	 * @parameter expression="${opencms.server.id}"
 	 */
 	private String openCmsServerAuthId;
@@ -46,7 +65,7 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	protected String openCmsUserPass;
 
 	/**
-	 * Base dir for OpenCms installation.
+	 * BaseDir for OpenCms installation.
 	 * Defaults to <code>${catalina.home}/webapps/ROOT"</code>.
 	 * @parameter expression="${opencms.home}" default-value="${catalina.home}/webapps/ROOT"
 	 * @required
@@ -56,25 +75,13 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	/**
 	 * Mapping for the OpenCms dispatcher servlet.
 	 * Defaults to "opencms/*".
-	 * @parameter expression="${opencms.servlet.mapping}"
+	 * @parameter expression="${opencms.servlet.mapping}" default-value="opencms/*"
 	 */
 	protected String openCmsServetMapping;
 
-	/**
-	 * User that installs the module on the OpenCms instance.
-	 * @parameter expression="${server.user.name}"
-	 */
-	protected String appServerUserName;
 
 	/**
-	 * Credentials for the OpenCms user.
-	 * @parameter expression="${server.user.pass}"
-	 */
-	protected String appServerUserPass;
-
-	/**
-	 * Base dir for servlet container installation (tomcat).
-	 * Defaults to <code>${catalina.base}"</code>.
+	 * BaseDir for Tomcat installation.
 	 * @parameter expression="${catalina.base}" default-value="${catalina.base}"
 	 * @required
 	 */
@@ -89,22 +96,25 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
     private File moduleFile;
 
     /**
+	 * Selects to update the module or a fresh install, for installing previous module version
+	 * Defaults to <code>"true"</code>
+	 * @parameter expression="${fresh.install}" default-value="true"
+	 */
+	private boolean freshInstall;
+
+
+    /**
 	 * Punto de entrada del mojo
 	 */
     public void execute() throws MojoExecutionException
     {
-		// check if module file exist
-        if(!PACKAGING_OPENCMS_MODULE.equals( getProject().getPackaging() ))
-        {
-        	this.getLog().info("El proyecto no es un módulo de OpenCms");
-        	return;
-        }
-        
     	// Get the module name for previous deletion
     	String moduleName = getModuleName();
 
     	// check directories exits
-       	checkConditions();
+       	if(!checkConditions()) {
+       		return;
+       	}
 
        	// get OpenCms Credentials
        	fillOpenCmsCredentials();
@@ -115,23 +125,13 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
        	// Copy the module to the install directory
     	copyFileToModulesDir(openCmsWebInfDir);
 
-
+    	// Generate install script
+    	File installScript;
 		try
 		{
-			// Generate install script
-			File uninstallScript = OpenCmsScriptUtils.buildUninstallScript(
-					moduleName, openCmsUserName, openCmsUserPass);
-
-			// Log script content
-			if( getLog().isDebugEnabled() )
-			{
-				getLog().debug("Executing instalation script: " + uninstallScript);
-				getLog().debug( ManifestUtils.readFileAsStringNoException( uninstallScript ));
-			}
-
-	       // Execute the script
-			OpenCmsScriptUtils.executeOpenCmsScript( openCmsWebInfDir, appServerBaseDir,
-					openCmsServetMapping, openCmsWebappName, "opencms/> ", uninstallScript);
+			installScript = OpenCmsScriptUtils.buildInstallScript(
+					moduleName, moduleFile, openCmsUserName,
+					openCmsUserPass, freshInstall);
 		}
 		catch (IOException e)
 		{
@@ -139,6 +139,16 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 					"Error generando el script de instalación", e);
 		}
 
+		// Log script content
+		if( getLog().isDebugEnabled() )
+		{
+			getLog().debug("Executing instalation script: " + installScript);
+			getLog().debug( ManifestUtils.readFileAsStringNoException( installScript ));
+		}
+
+       // Execute the script
+		OpenCmsScriptUtils.executeOpenCmsScript( openCmsWebInfDir, appServerBaseDir,
+				openCmsServetMapping, openCmsWebappName, "opencms/> ", installScript);
     }
 
     /**
@@ -185,20 +195,12 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	/**
 	 * Comprueba que se cumplen las condiciones para instalar el módulo
 	 */
-	protected void checkConditions( ) throws MojoExecutionException
+	protected boolean checkConditions( ) throws MojoExecutionException
 	{
-		// check if module file exist
-        if( PACKAGING_OPENCMS_MODULE.equals( getProject().getPackaging() ))
+        if( !moduleFile.exists() )
         {
-        	if( !moduleFile.exists() )
-	        {
-	        	throw new MojoExecutionException(
-	        		"El fichero de módulo " + moduleFile + "no existe!" );
-	        }
-        }
-        else
-        {
-        	this.getLog().warn("El proyecto no es un módulo de OpenCms");
+        	throw new MojoExecutionException(
+        			"El fichero de módulo " + moduleFile + "no existe!" );
         }
 
         // Compose WEB-INF file for opencms
@@ -210,6 +212,7 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
         	throw new MojoExecutionException(
         			"Directorio WEB-INF de OpenCms no existe " + openCmsWebDir );
         }
+        return true;
 	}
 
 	/**

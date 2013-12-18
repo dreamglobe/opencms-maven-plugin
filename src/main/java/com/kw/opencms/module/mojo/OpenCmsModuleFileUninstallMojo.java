@@ -16,10 +16,10 @@ import com.kw.opencms.module.mojo.util.OpenCmsScriptUtils;
  * Generates and execute a script for deleting the module indicate by property <code>manifest.module.name</code>.
  * If no property as this exist searches for the manifest properties descriptor in the working dir.
  *
- * @goal uninstall-module
- * @requiresProject true
+ * @goal uninstall-module-file
+ * @requiresProject false
  */
-public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
+public class OpenCmsModuleFileUninstallMojo extends AbstractModuleMojo
 {
 
 	public static final String MANIFEST_MODULE_VERSION_PROPERTY 	= "manifest.module.version";
@@ -93,13 +93,6 @@ public class OpenCmsModuleUninstallMojo extends AbstractModuleMojo
 	 */
     public void execute() throws MojoExecutionException
     {
-		// check if module file exist
-        if(!PACKAGING_OPENCMS_MODULE.equals( getProject().getPackaging() ))
-        {
-        	this.getLog().info("El proyecto no es un módulo de OpenCms");
-        	return;
-        }
-        
     	// Get the module name for previous deletion
     	String moduleName = getModuleName();
 

@@ -306,10 +306,10 @@ public class OpenCmsScriptUtils
 				throw new BuildException("OpenCms library dir does not exist! Check openCmsBaseDir property " + openCmsWebDir);
 			
 			//add all the jars we just downloaded to the new child realm
-			log.info("Cargando bibliotecas de servidor desde "+ appServerBaseDir);
+			log.info("Cargando bibliotecas de servidor desde "+ appServerLibDir);
 			loadJarInClassRealm(ocRealm, appServerLibDir);
 
-			log.info("Cargando bibliotecas de servidor y OpenCms desde "+ appServerLibDir);
+			log.info("Cargando bibliotecas de OpenCms desde "+ opencmsLibDir);
 			loadJarInClassRealm(ocRealm, opencmsLibDir);
 			
 			try 
